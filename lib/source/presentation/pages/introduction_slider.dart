@@ -180,7 +180,7 @@ class _IntroductionSliderState extends State<IntroductionSlider> {
                       ? TextButton(
                           onPressed: () {
                             if (this.widget.onDone != null)
-                              this.widget.onDone;
+                              this.widget.onDone!();
                             else
                               _goOnDone();
                           },

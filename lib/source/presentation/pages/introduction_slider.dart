@@ -2,6 +2,7 @@ library introduction_slider;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import '../widgets/widgets.dart';
 
 // ignore: must_be_immutable
@@ -34,6 +35,9 @@ class IntroductionSlider extends StatefulWidget {
   /// The initial page index of the introduction slider.
   int initialPage;
 
+  /// RA
+  final Function? onDone;
+
   IntroductionSlider({
     Key? key,
     required this.items,
@@ -45,6 +49,7 @@ class IntroductionSlider extends StatefulWidget {
     required this.done,
     this.next,
     this.dotIndicator,
+    this.onDone,
   })  : assert((initialPage <= items.length - 1) && (initialPage >= 0),
             "initialPage can't be less than 0 or greater than items length."),
         super(key: key);
@@ -174,33 +179,10 @@ class _IntroductionSliderState extends State<IntroductionSlider> {
                   lastIndex
                       ? TextButton(
                           onPressed: () {
-                            Navigator.of(context).pushReplacement(
-                              PageRouteBuilder(
-                                transitionDuration:
-                                    widget.done.animationDuration!,
-                                transitionsBuilder: (context, animation,
-                                    secondAnimation, child) {
-                                  animation = CurvedAnimation(
-                                    parent: animation,
-                                    curve: widget.done.curve!,
-                                  );
-                                  return SlideTransition(
-                                    position: Tween<Offset>(
-                                      begin: widget.scrollDirection ==
-                                              Axis.vertical
-                                          ? const Offset(0, 1.0)
-                                          : const Offset(1.0, 0.0),
-                                      end: Offset.zero,
-                                    ).animate(animation),
-                                    child: child,
-                                  );
-                                },
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) {
-                                  return widget.done.home!;
-                                },
-                              ),
-                            );
+                            if (this.widget.onDone != null)
+                              this.widget.onDone;
+                            else
+                              _goOnDone();
                           },
                           style: widget.done.style,
                           child: widget.done.child,
@@ -220,6 +202,32 @@ class _IntroductionSliderState extends State<IntroductionSlider> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _goOnDone() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        transitionDuration: widget.done.animationDuration!,
+        transitionsBuilder: (context, animation, secondAnimation, child) {
+          animation = CurvedAnimation(
+            parent: animation,
+            curve: widget.done.curve!,
+          );
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: widget.scrollDirection == Axis.vertical
+                  ? const Offset(0, 1.0)
+                  : const Offset(1.0, 0.0),
+              end: Offset.zero,
+            ).animate(animation),
+            child: child,
+          );
+        },
+        pageBuilder: (context, animation, secondaryAnimation) {
+          return widget.done.home!;
+        },
       ),
     );
   }
